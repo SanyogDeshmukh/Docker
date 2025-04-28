@@ -3,10 +3,6 @@
 The instructions provided below specify the steps to build [Docker](https://www.docker.com/) version 28.1.0 on Linux on IBM Z for following distributions:
 
 * RHEL (8.8, 8.10, 9.2, 9.4, 9.5)
-* SLES 15 SP6
-* Ubuntu 22.04
-
-Additionally, binaries are available to install from [here](https://support.hyland.com/r/Alfresco/Alfresco-Content-Services-Community-Edition/25.1/Alfresco-Content-Services-Community-Edition/Documentation-Notice) if not using a containerized environment. To use these binaries, different Java flavors can be installed on mentioned distributions. Instructions for installing the binaries can be found [here](https://support.hyland.com/r/Alfresco/Alfresco-Content-Services-Community-Edition/25.1/Alfresco-Content-Services-Community-Edition/Install/Install-with-zip).
 
 _**General Notes:**_
 
@@ -15,96 +11,33 @@ _**General Notes:**_
 
 ### Prerequisites:
 
-* Docker packages for RHEL, SLES and Ubuntu can be installed by following the instructions [here](https://docs.docker.com/engine/install/#server).
+* Docker packages for RHEL can be installed by following the instructions [here](https://docs.docker.com/engine/install/#server).
 
 
 ### 1. Build using script
 
-If you want to build Alfresco using manual steps, go to STEP 2.
+If you want to build Docker-ce using manual steps, go to STEP 2.
 
-Use the following commands to build Alfresco using the build [script](https://github.com/linux-on-ibm-z/scripts/tree/master/Alfresco). Please make sure you have wget installed.
+Use the following commands to build Docker-ce using the build [script](https://github.com/linux-on-ibm-z/scripts/tree/master/Docker-ce). Please make sure you have wget installed.
 
 ```bash
-wget -q https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/Alfresco/25.1.0/build_alfresco.sh
+wget -q https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/Docker-ce/28.1.0/build_docker_ce.sh
 
 # Build Alfresco
-bash build_alfresco.sh
+bash build_docker-ce.sh
 ```
 
 ### 2. Install dependencies
 
   ```bash
   export SOURCE_ROOT=/<source_root>/
-  export PATCH_URL="https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/Alfresco/25.1.0/patch"
+  export PATCH_URL="https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/Docker-ce/28.1.0/patch"
   ```
 
-  * RHEL (8.8, 8.10)
+  * RHEL (8.8, 8.10, 9.2, 9.4, 9.5)
     ```bash
-    sudo yum install -y git gcc gcc-c++ python3 make wget ant iptables-services procps-ng xz curl patch jq
+    sudo yum install -y wget tar make jq git
     ```
-
-  * RHEL (9.2, 9.4, 9.5)
-    ```bash
-    sudo yum install -y --allowerasing git gcc gcc-c++ python3 make wget ant iptables-services procps-ng xz curl patch jq
-    ```
-    
-  * SLES 15 SP6
-    ```bash
-    sudo zypper install -y git gcc gcc-c++ python3 make wget ant iptables procps xz curl patch jq
-    ```
-    
-  * Ubuntu 22.04
-    ```bash
-    sudo apt-get update
-    sudo apt-get install -y git gcc g++ python3 make wget ant iptables procps xz-utils curl patch jq
-    ```
-
-#### 2.1. Download and Install Java
-* With IBM Semeru Runtime (previously known as AdoptOpenJDK openj9).
-  * Download and install IBM Semeru Runtime (Java 17 or Java 21) from [here](https://developer.ibm.com/languages/java/semeru-runtimes/downloads).
-
-* With Eclipse Adoptium Temurin Runtime (previously known as AdoptOpenJDK hotspot)
-  * Download and install Eclipse Adoptium Temurin Runtime (Java 17 or Java 21) from [here](https://adoptium.net/temurin/releases/).
-* With OpenJDK Runtime
-  * Install OpenJDK Runtime 17.
-
-  ```bash
-  # For RHEL only
-  sudo yum install -y java-17-openjdk-devel
-  export JAVA_HOME=/usr/lib/jvm/java-17
-  ```
-    
-  ```bash
-  # For SLES only
-  sudo zypper install -y java-17-openjdk  java-17-openjdk-devel
-  export JAVA_HOME=/usr/lib64/jvm/java-17-openjdk
-  ```
-  
-  ```bash
-  # For Ubuntu only
-  sudo apt-get install -y openjdk-17-jdk
-  export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-s390x
-  ```
-
-  * Install OpenJDK Runtime 21.
-
-  ```bash
-  # For RHEL only
-  sudo yum install -y java-21-openjdk-devel
-  export JAVA_HOME=/usr/lib/jvm/java-21
-  ```
-    
-  ```bash
-  # For SLES only
-  sudo zypper install -y java-21-openjdk  java-21-openjdk-devel
-  export JAVA_HOME=/usr/lib64/jvm/java-21-openjdk
-  ```
-  
-  ```bash
-  # For Ubuntu only
-  sudo apt-get install -y openjdk-21-jdk
-  export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-s390x
-  ```
 
 #### 2.2. Install Maven
 
