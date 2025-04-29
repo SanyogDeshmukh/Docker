@@ -9,12 +9,12 @@ _**General Notes:**_
 * _When following the steps below please use a standard permission user unless otherwise specified._
 * _A directory `/<source_root>/` will be referred to in these instructions, this is a temporary writable directory anywhere you'd like to place it._
 
-### Prerequisites:
+## Prerequisites:
 
 * Docker packages for RHEL can be installed by following the instructions [here](https://docs.docker.com/engine/install/#server).
 
 
-### 1. Build using script
+## 1. Build using script
 
 If you want to build Docker-ce using manual steps, go to STEP 2.
 
@@ -27,35 +27,42 @@ wget -q https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/Docker-c
 bash build_docker-ce.sh
 ```
 
-### 2. Install dependencies
+## 2. Install dependencies
 
   ```bash
   export SOURCE_ROOT=/<source_root>/
   export PATCH_URL="https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/Docker-ce/28.1.0/patch"
+  mkdir -p $SOURCE_ROOT/go/src/github.com/docker
+  mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries
+  mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
   ```
 
   * RHEL (8.8, 8.10, 9.2, 9.4, 9.5)
-    ```bash
+  ```bash
     sudo yum install -y wget tar make jq git
-    ```
+  ```
 
-#### 2.2. Install Maven
 
-```bash
-cd $SOURCE_ROOT
-wget https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz
-tar -xzf apache-maven-3.9.9-bin.tar.gz
-export PATH=$SOURCE_ROOT/apache-maven-3.9.9/bin:$PATH
-```
-
-### 3. Build component docker images
-_*Note:*_ _Alfresco Component docker images have been built using Java 17 by default. Replace with jre21 for building these images using Java21 and set JAVA_MAJOR as 21._
-#### 3.1. Build alfresco-base-java image
+## 3. Build binaries
+### 3.1. Build containerd binaries
 
 ```bash
-cd $SOURCE_ROOT
-git clone https://github.com/Alfresco/alfresco-docker-base-java.git
-cd alfresco-docker-base-java
+cd $CURDIR/go/src/github.com/docker
+git clone https://github.com/docker/containerd-packaging
+cd containerd-packaging
+git checkout $CONTAINERD_REF
+curl -s $PATCH_URL/containerd-makefile.diff | git apply
+mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/
+
+#Build RHEL-8 containerd binaries
+mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-8
+make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi8/ubi
+cp build/rhel/8/s390x/*.rpm $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-8/
+
+#Build RHEL-9 containerd binaries
+mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9
+make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi9/ubi
+cp build/rhel/9/s390x/*.rpm $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9/
 ```
 
 * For IBM Semeru or Temurin JDKs only
