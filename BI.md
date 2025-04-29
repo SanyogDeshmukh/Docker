@@ -37,7 +37,7 @@ cd $SOURCE_ROOT/go/src/github.com/docker
 git clone https://github.com/docker/containerd-packaging
 cd containerd-packaging
 git checkout $CONTAINERD_REF
-git apply containerd-makefile.diff #Please see attached patch.
+git apply $SOURCE_ROOT/containerd-makefile.diff #Please see attached patch.
 mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/
 mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9
 make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi9/ubi
@@ -50,7 +50,7 @@ cd $SOURCE_ROOT/go/src/github.com/docker
 git clone https://github.com/docker/docker-ce-packaging
 cd docker-ce-packaging/
 git checkout $DOCKER_PACKAGING_REF
-git apply docker-makefile.diff #Please see attached patch.
+git apply $SOURCE_ROOT/docker-makefile.diff #Please see attached patch.
 make DOCKER_CLI_REF=v$PACKAGE_VERSION DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF checkout
 cd $SOURCE_ROOT/go/src/github.com/docker/docker-ce-packaging
 make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF rpmbuild/bundles-ce-rhel-9-s390x.tar.gz
