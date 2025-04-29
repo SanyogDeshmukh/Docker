@@ -62,7 +62,6 @@ function cleanup() {
 function configureAndInstall() {
         printf -- 'Configuration and Installation started \n'
         cd /"$CURDIR"/
-
         mkdir -p $CURDIR/go/src/github.com/docker
         mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries
         mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
@@ -89,15 +88,16 @@ function configureAndInstall() {
           mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/
 
          #Build RHEL-8 containerd binaries
-          mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-8
-          make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry1:5000/jenkins_slave_rhel:8.8
-          cp build/rhel/8/s390x/*.rpm $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-8/
-
-        # #Build RHEL-9 containerd binaries
-          mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9
-          make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi9/ubi:9.5
-          cp build/rhel/9/s390x/*.rpm $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9/
-
+         if [[ "$DISTRO" == "rhel-8.8" || "$DISTRO" == "rhel-8.10" ]]; then 
+                 mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-8
+                 make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi8/ubi
+                 cp build/rhel/8/s390x/*.rpm $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-8/
+         else
+         #Build RHEL-9 containerd binaries
+                 mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9
+                 make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi9/ubi
+                 cp build/rhel/9/s390x/*.rpm $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9/
+         fi
         # Docker-CE
         cd $CURDIR/go/src/github.com/docker
         git clone https://github.com/docker/docker-ce-packaging
@@ -107,16 +107,18 @@ function configureAndInstall() {
         make DOCKER_CLI_REF=v$PACKAGE_VERSION DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF checkout
 
         #Building Rhel 8 Docker-ce Binaries
-        cd $CURDIR/go/src/github.com/docker/docker-ce-packaging
-        make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF rpmbuild/bundles-ce-rhel-8-s390x.tar.gz
-        cp rpm/rpmbuild/bundles-ce-rhel-8-s390x.tar.gz $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
-        echo "Completed building RHEL-8 docker-ce binaries"
-
+        if [[ "$DISTRO" == "rhel-8.8" || "$DISTRO" == "rhel-8.10" ]]; then
+                cd $CURDIR/go/src/github.com/docker/docker-ce-packaging
+                make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF rpmbuild/bundles-ce-rhel-8-s390x.tar.gz
+                cp rpm/rpmbuild/bundles-ce-rhel-8-s390x.tar.gz $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
+                echo "Completed building RHEL-8 docker-ce binaries"
+        else
         #Building Rhel 9 Docker-ce Binaries
-        cd $CURDIR/go/src/github.com/docker/docker-ce-packaging
-        make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF rpmbuild/bundles-ce-rhel-9-s390x.tar.gz
-        cp rpm/rpmbuild/bundles-ce-rhel-9-s390x.tar.gz $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
-        echo "Completed building RHEL-9 docker-ce binaries"
+                cd $CURDIR/go/src/github.com/docker/docker-ce-packaging
+                make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF rpmbuild/bundles-ce-rhel-9-s390x.tar.gz
+                cp rpm/rpmbuild/bundles-ce-rhel-9-s390x.tar.gz $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
+                echo "Completed building RHEL-9 docker-ce binaries"
+        fi
 }
 
 function logDetails() {
@@ -171,6 +173,7 @@ case "$DISTRO" in
 "rhel-8."* | "rhel-9."*)
         printf -- "Installing %s %s for %s \n" "$PACKAGE_NAME" "$PACKAGE_VERSION" "$DISTRO" |& tee -a "$LOG_FILE"
         printf -- 'Installing the dependencies for Docker from repository \n' |& tee -a "$LOG_FILE"
+        sudo yum install -y wget tar make jq git |& tee -a "$LOG_FILE"
         configureAndInstall |& tee -a "$LOG_FILE"
         ;;
 *)
