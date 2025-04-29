@@ -25,7 +25,7 @@ Use the following commands to build Docker-ce using the build [script](https://g
 wget -q https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/Docker-ce/27.5.1/build_docker_ce.sh
 
 # Build Docker-CE
-bash build_docker-ce.sh
+bash build_docker_ce.sh
 ```
 
 ## 2. Install dependencies
