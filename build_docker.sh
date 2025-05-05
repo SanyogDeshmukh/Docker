@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# © Copyright IBM Corporation 2025.
-# LICENSE: Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
-#
-# Instructions:
-# Download build script: wget https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/Docker-ce/27.5.1/build_docker_ce.sh
-# You need a docker service running on your host before executing the script.
-# Execute build script: bash build_docker_ce.sh    (provide -h for help)
+# Execute build script: bash build_docker_ce.sh (provide -h for help)
+# Please set the below references for a release before running the build script.
+# CONTAINERD_REF is the commit id of `release pull request` (For here: [1.27.7](https://github.com/docker/containerd-packaging/commit/2d17c55a6af6c3e48e0fdf19e7239f65ceb61d69)) on the main branch of [containerd-packaging](https://github.com/docker/containerd-packaging/commits/main/) repository.
+# DOCKER_CLI_REF is the latest commit id from release tag(For here: 27.5.1) of [docker-cli](https://github.com/docker/cli) repository.
+# DOCKER_ENGINE_REF is the latest commit id from release tag(For here: 27.5.1) of [moby](https://github.com/moby/moby) repository.
+# DOCKER_PACKAGING_REF can be obtained from official docker engine [release notes](https://docs.docker.com/engine/release-notes/28/). Check for pull request link in 
+# packaging updates. If packaging updates are missing for a release, then use commit of last release. (For here: [27.5.1](https://docs.docker.com/engine/release-notes/27/#2751))
+
 set -e -o pipefail
 PACKAGE_NAME="docker"
 PACKAGE_VERSION=27.5.1
@@ -61,10 +62,10 @@ function cleanup() {
 }
 function configureAndInstall() {
         printf -- 'Configuration and Installation started \n'
-        cd /"$CURDIR"/
+        cd "$CURDIR"
         mkdir -p $CURDIR/go/src/github.com/docker
         mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries
-        mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
+        mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar
 
         if [ -d ""$CURDIR"/go/src/github.com/docker/docker-ce-packaging" ]; then
            echo "Removing the dir."
@@ -91,6 +92,7 @@ function configureAndInstall() {
          mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9
          make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi9/ubi
          cp build/rhel/9/s390x/*.rpm $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9/
+
          #Docker-CE
          cd $CURDIR/go/src/github.com/docker
          git clone https://github.com/docker/docker-ce-packaging
