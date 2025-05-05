@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Execute build script: bash build_docker_ce.sh (provide -h for help)
-# Please set the below references for a release before running the build script.
-# CONTAINERD_REF is the commit id of `release pull request` (For here: [1.27.7](https://github.com/docker/containerd-packaging/commit/2d17c55a6af6c3e48e0fdf19e7239f65ceb61d69)) on the main branch of [containerd-packaging](https://github.com/docker/containerd-packaging/commits/main/) repository.
-# DOCKER_CLI_REF is the latest commit id from release tag(For here: 27.5.1) of [docker-cli](https://github.com/docker/cli) repository.
-# DOCKER_ENGINE_REF is the latest commit id from release tag(For here: 27.5.1) of [moby](https://github.com/moby/moby) repository.
-# DOCKER_PACKAGING_REF can be obtained from official docker engine [release notes](https://docs.docker.com/engine/release-notes/28/). Check for pull request link in 
-# packaging updates. If packaging updates are missing for a release, then use commit of last release. (For here: [27.5.1](https://docs.docker.com/engine/release-notes/27/#2751))
+# Please set the below mentioned references before running the build script. (References for containerd v1.7.25 and docker-ce v27.5.1 are already set in below script)
+# CONTAINERD_REF is the commit id of a "release pull request" on the main branch of containerd-packaging repository (https://github.com/docker/containerd-packaging/commits/main/). For v1.7.25: https://github.com/docker/containerd-packaging/commit/32f5c873ffc9cfbce7c20524c2296a2507e0d045
+# DOCKER_CLI_REF is the latest commit id of a release tag of docker-cli repository. (https://github.com/docker/cli). For example, commit id of tag v27.5.1 is used in the script. 
+# DOCKER_ENGINE_REF is the latest commit id of a release tag of moby repository (https://github.com/moby/moby). For example, commit id of tag v27.5.1 is used in the script.
+# DOCKER_PACKAGING_REF is the commit id of a merged pull request to docker-ce-packaging that can be obtained from official docker engine release notes(https://docs.docker.com/engine/release-notes/28/). Check for the pull request link for docker/docker-ce-packaging in packaging updates section. 
+# If packaging updates are missing for a release, then use commit id mentioned in the packaging updates of last release. (For v27.5.1, check here (https://docs.docker.com/engine/release-notes/27/#2751))
 
 set -e -o pipefail
 PACKAGE_NAME="docker"
