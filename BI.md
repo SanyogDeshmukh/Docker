@@ -10,7 +10,7 @@ The instructions provided below specify the steps to build [Docker](https://www.
 * DOCKER_CLI_REF is the latest commit id from release tag of [docker-cli](https://github.com/docker/cli) repository. For example, latest commit id of tag v27.5.1 is used in the build instructions.
 * DOCKER_ENGINE_REF is the latest commit id from release tag of [moby](https://github.com/moby/moby) repository. For example, latest commit id of tag v27.5.1 is used in the build instructions.
 * DOCKER_PACKAGING_REF is the commit id of a merged pull request to docker-ce-packaging repository can be obtained from official docker engine [release notes](https://docs.docker.com/engine/release-notes/28/). Check for the pull request link for docker/docker-ce-packaging in the packaging updates section. If packaging updates are missing for a release, then use commit id of last release. (For [v27.5.1](https://docs.docker.com/engine/release-notes/27/#2751))
-  
+* DOCKER_COMPOSE_REF and DOCKER_BUILDX_REF are docker-compose and docker buildx versions mentioned in the release notes of [moby](https://github.com/moby/moby) repository. If versions are not mentioned in the release notes, use versions mentioned in previous release. For v27.5.1: https://github.com/moby/moby/releases/tag/v27.5.1
 
 ## 1. Set References and create necessary directories 
 
