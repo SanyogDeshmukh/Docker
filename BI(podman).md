@@ -52,24 +52,29 @@ sudo yum install -y wget tar make jq git podman-docker
 ### 4.1. Build containerd.io binary
 
 ```bash
-cd $CURDIR/go/src/github.com/docker
+cd $SOURCE_ROOT/go/src/github.com/docker
 git clone https://github.com/docker/containerd-packaging
 cd containerd-packaging
 git checkout $CONTAINERD_REF
 git apply /root/patches/containerd.diff
 rm dockerfiles/rpm.dockerfile
 cp /root/patches/rpm.dockerfile .
-mkdir -p $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/
-make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi8/ubi RH_USER_FILE="$RH_USER_FILE"  RH_PASS_FILE="$RH_PASS_FILE" #For RHEL 8.x
-make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi9/ubi RH_USER_FILE="$RH_USER_FILE"  RH_PASS_FILE="$RH_PASS_FILE" #For RHEL 9.x
-cid=$(docker create --entrypoint /bin/true localhost/containerd-packages:latest) 
-docker cp "$cid":/build/. $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd
-docker rm "$cid"
+mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/
+
+#For RHEL 8.x
+mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-8
+make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi8/ubi
+cp build/rhel/8/s390x/*.rpm $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-8/
+
+#For RHEL 9.x
+mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9
+make REF=v$CONTAINERD_VERSION BUILD_IMAGE=registry.access.redhat.com/ubi9/ubi
+cp build/rhel/9/s390x/*.rpm $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/rhel-9/
 ```
 ### 4.2. Build Docker-CE binaries (docker-ce, docker-compose, docker-ce-cli, docker-buildx-plugin, docker-ce-rootless-extras)
 
 ```bash
-cd $CURDIR/go/src/github.com/docker
+cd $SOURCE_ROOT/go/src/github.com/docker
 git clone https://github.com/docker/docker-ce-packaging
 cd docker-ce-packaging/
 git checkout $DOCKER_PACKAGING_REF
@@ -82,10 +87,10 @@ make DOCKER_CLI_REF=v$PACKAGE_VERSION DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKE
   ```bash
   cd rpm/rhel-8/
   rm -f Dockerfile
-	cp /root/patches/rhel8-Dockerfile Dockerfile
-	cd $CURDIR/go/src/github.com/docker/docker-ce-packaging
-  make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF RH_USER_FILE="$RH_USER_FILE"  RH_PASS_FILE="$RH_PASS_FILE" rpmbuild/bundles-ce-rhel-8-s390x.tar.gz
-  cp rpm/rpmbuild/bundles-ce-rhel-8-s390x.tar.gz $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
+  cp /root/patches/rhel8-Dockerfile Dockerfile
+  cd $SOURCE_ROOT/go/src/github.com/docker/docker-ce-packaging
+  make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF rpmbuild/bundles-ce-rhel-8-s390x.tar.gz
+  cp rpm/rpmbuild/bundles-ce-rhel-8-s390x.tar.gz $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
   ```
 
 * RHEL 9.x
@@ -94,9 +99,9 @@ make DOCKER_CLI_REF=v$PACKAGE_VERSION DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKE
   cd rpm/rhel-9/
   rm -f Dockerfile
   cp /root/patches/rhel9-Dockerfile Dockerfile
-  cd $CURDIR/go/src/github.com/docker/docker-ce-packaging
-  make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF RH_USER_FILE="$RH_USER_FILE"  RH_PASS_FILE="$RH_USER_FILE" rpmbuild/bundles-ce-rhel-9-s390x.tar.gz 
-  cp rpm/rpmbuild/bundles-ce-rhel-9-s390x.tar.gz $CURDIR/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
+  cd $SOURCE_ROOT/go/src/github.com/docker/docker-ce-packaging
+  make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF rpmbuild/bundles-ce-rhel-9-s390x.tar.gz 
+  cp rpm/rpmbuild/bundles-ce-rhel-9-s390x.tar.gz $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
   ```
 
 ## 5. Install binaries
