@@ -56,9 +56,9 @@ cd $SOURCE_ROOT/go/src/github.com/docker
 git clone https://github.com/docker/containerd-packaging
 cd containerd-packaging
 git checkout $CONTAINERD_REF
-git apply /root/patches/containerd.diff
+git apply $SOURCE_ROOT/patches/containerd.diff
 rm dockerfiles/rpm.dockerfile
-cp /root/patches/rpm.dockerfile .
+cp $SOURCE_ROOT/patches/rpm.dockerfile .
 mkdir -p $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries/containerd/
 
 #For RHEL 8.x
@@ -78,7 +78,7 @@ cd $SOURCE_ROOT/go/src/github.com/docker
 git clone https://github.com/docker/docker-ce-packaging
 cd docker-ce-packaging/
 git checkout $DOCKER_PACKAGING_REF
-git apply /root/patches/docker-ce-makefile.diff
+git apply $SOURCE_ROOT/patches/docker-ce-makefile.diff
 make DOCKER_CLI_REF=v$PACKAGE_VERSION DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF checkout
 ```
 
@@ -98,7 +98,7 @@ make DOCKER_CLI_REF=v$PACKAGE_VERSION DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKE
   ```bash
   cd rpm/rhel-9/
   rm -f Dockerfile
-  cp /root/patches/rhel9-Dockerfile Dockerfile
+  cp $SOURCE_ROOT/patches/rhel9-Dockerfile Dockerfile
   cd $SOURCE_ROOT/go/src/github.com/docker/docker-ce-packaging
   make -C rpm VERSION=$PACKAGE_VERSION DOCKER_CLI_REF=$DOCKER_CLI_REF DOCKER_ENGINE_REF=$DOCKER_ENGINE_REF DOCKER_PACKAGING_REF=$DOCKER_PACKAGING_REF DOCKER_COMPOSE_REF=$DOCKER_COMPOSE_REF DOCKER_BUILDX_REF=$DOCKER_BUILDX_REF rpmbuild/bundles-ce-rhel-9-s390x.tar.gz 
   cp rpm/rpmbuild/bundles-ce-rhel-9-s390x.tar.gz $SOURCE_ROOT/${PACKAGE_NAME}-${PACKAGE_VERSION}-binaries-tar/
